@@ -8,14 +8,6 @@ import (
 	"strings"
 )
 
-/*
-@Time : 2022/6/21 17:14
-@Author : 张大鹏
-@File : generator.go
-@Software: Goland2021.3.1
-@Description: 用于生成密码
-*/
-
 const (
 	LengthWeak                uint = 6                                 // 弱密码长度
 	LengthOK                  uint = 12                                // 一般密码长度

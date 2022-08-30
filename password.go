@@ -2,10 +2,12 @@ package zdpgo_password_generate
 
 import (
 	"crypto/rand"
+	"crypto/sha512"
 	"crypto/subtle"
 	"encoding/base64"
 	"encoding/hex"
 	"fmt"
+	"github.com/zhangdapeng520/zdpgo_password_generate/passwordv2"
 	"io"
 	"strconv"
 	"strings"
@@ -323,20 +325,40 @@ func Benchmark(params ScryptParams) (seconds float64, err error) {
 
 }
 
-/*
-*	goSecretBoxPassword - Golang Password Hashing & Encryption Library
-*   Copyright (C) 2017  Darwin Smith
-*
-*   This program is free software: you can redistribute it and/or modify
-*   it under the terms of the GNU General Public License as published by
-*   the Free Software Foundation, either version 3 of the License, or
-*   (at your option) any later version.
-*
-*   This program is distributed in the hope that it will be useful,
-*   but WITHOUT ANY WARRANTY; without even the implied warranty of
-*   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-*   GNU General Public License for more details.
-*
-*   You should have received a copy of the GNU General Public License
-*   along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+// GenerateV2 生成V2级别的密码
+// @param origin 要加密的字符串
+// @return 加密后的密码字符串
+func GenerateV2(origin string) string {
+	options := &passwordv2.Options{SaltLen: 16, Iterations: 100, KeyLen: 32, HashFunction: sha512.New}
+	salt, encodedPwd := passwordv2.Encode(origin, options)
+	newPassword := fmt.Sprintf("$pbkdf2-sha512$%s$%s", salt, encodedPwd)
+	return newPassword
+}
+
+// CheckV2 校验V2级别的密码
+// @param origin 原始密码
+// @param passwordStr 加密后的密码
+// @return 密码是否正确
+func CheckV2(origin, passwordStr string) bool {
+	// 不包含，不正确
+	if !strings.Contains(passwordStr, "$") {
+		return false
+	}
+
+	// 参数
+	options := &passwordv2.Options{SaltLen: 16, Iterations: 100, KeyLen: 32, HashFunction: sha512.New}
+
+	// 切割
+	passwordInfo := strings.Split(passwordStr, "$")
+
+	// 长度小于3，不正确
+	if len(passwordInfo) < 3 {
+		return false
+	}
+
+	// 判断密码
+	check := passwordv2.Verify(origin, passwordInfo[2], passwordInfo[3], options)
+
+	// 返回判断结果
+	return check
+}

@@ -6,14 +6,6 @@ import (
 	"os"
 )
 
-/*
-@Time : 2022/6/21 17:16
-@Author : 张大鹏
-@File : main.go
-@Software: Goland2021.3.1
-@Description: 测试生成密码
-*/
-
 func main() {
 	config := zdpgo_password_generate.Config{
 		Length:                   128,
